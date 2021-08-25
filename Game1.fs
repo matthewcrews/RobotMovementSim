@@ -29,12 +29,17 @@ type Game1 () as this =
         // TODO: use this.Content to load your game content here
         robotSprite <- this.Content.Load<Texture2D>("RobotTriangle")
         // Create a single bot and move it to the right
-        let circleBot = {
+        let circleBot1 = {
             Position = Vector2(0f, 0f)
             State = Idle
             Steps = [Right 100f; Down 100f; Left 100f; Up 100f]
         }
-        bots <- [circleBot]
+        let circleBot2 = {
+            Position = Vector2(50f, 50f)
+            State = Idle
+            Steps = [Right 100f; Down 100f; Left 100f; Up 100f]
+        }
+        bots <- [circleBot1; circleBot2]
  
     override this.Update (gameTime) =
         if (GamePad.GetState(PlayerIndex.One).Buttons.Back = ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
