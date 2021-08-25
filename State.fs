@@ -3,6 +3,7 @@ module State
 open System
 open Microsoft.Xna.Framework
 
+let nil<'a> = Unchecked.defaultof<'a>
 let maxAcc = 100f
 let snapToDestinationDistance = 0.5f
 let maxVelocity = 100.0f
@@ -40,9 +41,12 @@ module BotState =
 type Bot = {
     BotId : int
     Position : Vector2
+    Rotation : float32
     State : BotState
     Steps : Step list
-}
+} with
+    member _.Origin =
+        Vector2 (32f / 2f, 32f / 2f)
 
 module Bot =
 

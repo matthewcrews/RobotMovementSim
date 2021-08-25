@@ -5,6 +5,7 @@ open Microsoft.Xna.Framework.Graphics
 open Microsoft.Xna.Framework.Input
 open State
 
+
 type Game1 () as this =
     inherit Game()
  
@@ -29,19 +30,21 @@ type Game1 () as this =
         // TODO: use this.Content to load your game content here
         robotSprite <- this.Content.Load<Texture2D>("RobotTriangle")
         // Create a single bot and move it to the right
-        let circleBot1 = {
-            BotId = 1
-            Position = Vector2(0f, 0f)
-            State = Stopped
-            Steps = [Right 100f; Down 100f; Left 100f; Up 100f]
-        }
+        //let circleBot1 = {
+        //    BotId = 1
+        //    Position = Vector2(0f, 0f)
+        //    Rotation = 0f
+        //    State = Stopped
+        //    Steps = [Right 100f; Down 100f; Left 100f; Up 100f]
+        //}
         let circleBot2 = {
             BotId = 2
             Position = Vector2(50f, 50f)
+            Rotation = MathHelper.PiOver4
             State = Stopped
             Steps = [Right 100f; Down 100f; Left 100f; Up 100f]
         }
-        bots <- [circleBot1; circleBot2]
+        bots <- [circleBot2]
  
     override this.Update (gameTime) =
         if (GamePad.GetState(PlayerIndex.One).Buttons.Back = ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
@@ -59,7 +62,8 @@ type Game1 () as this =
         spriteBatch.Begin()
 
         for bot in bots do
-            spriteBatch.Draw (robotSprite, bot.Position, Color.White)
+            //let sourceRect = Rectangle (0, 0, robotSprite.Width, robotSprite.Height)
+            spriteBatch.Draw (robotSprite, bot.Position, nil<_>, Color.White, bot.Rotation, bot.Origin, Vector2.One, SpriteEffects.None, 1f)
 
         spriteBatch.End()
         base.Draw(gameTime)
