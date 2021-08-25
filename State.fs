@@ -1,103 +1,137 @@
 module State
 
 open System
+open Microsoft.Xna.Framework
 
-let maxAcc = 0.0001f
-let snapToDestinationDistance = 1.0f
-let maxVelocity = 1.0f
-let leftAcc = -maxAcc
-let rightAcc = maxAcc
-let downAcc = maxAcc
-let upAcc = -maxAcc
+let maxAcc = 100f
+let snapToDestinationDistance = 0.5f
+let maxVelocity = 100.0f
+let left = Vector2(-1f, 0f)
+let right = Vector2(1f, 0f)
+let up = Vector2(0f, -1f)
+let down = Vector2(0f, 1f)
+
+//[<RequireQualifiedAccess>]
+type Step =
+    | Right of float32
+    | Down of float32
+    | Left of float32
+    | Up of float32
 
 type BotState =
     | Idle
-    | LeftTo of float32
-    | RightTo of float32
-    | UpTo of float32
-    | DownTo of float32
+    | LeftTo of destination: Vector2 * velocity: float32 * acceleration: float32
+    | RightTo of destination: Vector2 * velocity: float32 * acceleration: float32
+    | UpTo of destination: Vector2 * velocity: float32 * acceleration: float32
+    | DownTo of destination: Vector2 * velocity: float32 * acceleration: float32
     with
         static member Zero = BotState.Idle
 
-type Bots = {
-    LocX : float32 []
-    LocY : float32 []
-    VelX : float32 []
-    VelY : float32 []
-    AccX : float32 []
-    AccY : float32 []
-    State : BotState[]
+type Bot = {
+    Position : Vector2
+    State : BotState
+    Steps : Step list
 }
 
-module Bots =
+module Bot =
 
-    let move (bots: Bots) (ts: TimeSpan) =
-        let elapsedMs = float32 ts.TotalMilliseconds
+    let handleIdle (b: Bot) =
+        match b.Steps with
+        | [] -> b
+        | next::remaining ->
+            match next with
+            | Step.Right x -> {b with State = RightTo (x * right + b.Position, 0f, maxAcc); Steps = remaining}
+            | Step.Down  x -> {b with State = DownTo  (x * down + b.Position,  0f, maxAcc); Steps = remaining}
+            | Step.Left  x -> {b with State = LeftTo  (x * left + b.Position,  0f, maxAcc); Steps = remaining}
+            | Step.Up    x -> {b with State = UpTo    (x * up + b.Position,    0f, maxAcc); Steps = remaining}
+
+
+    let move (ts: TimeSpan) (b: Bot) : Bot =
+        let elapsedSecs = float32 ts.TotalSeconds
         
-        for i = 0 to bots.LocX.Length - 1 do
-            bots.LocX.[i] <- bots.LocX.[i] + elapsedMs * bots.VelX.[i] + 0.5f * bots.AccX.[i] * elapsedMs * elapsedMs
-            bots.LocY.[i] <- bots.LocY.[i] + elapsedMs * bots.VelY.[i] + 0.5f * bots.AccY.[i] * elapsedMs * elapsedMs
-
-            bots.VelX.[i] <- Math.Clamp (bots.VelX.[i] + bots.AccX.[i] * elapsedMs, -maxVelocity, maxVelocity)
-            bots.VelY.[i] <- Math.Clamp (bots.VelY.[i] + bots.AccY.[i] * elapsedMs, -maxVelocity, maxVelocity)
-
-            match bots.State.[i] with
-            | Idle -> ()
-            | LeftTo x  -> 
-                if Math.Abs (bots.LocX.[i] - x) <= snapToDestinationDistance then
-                    bots.LocX.[i] <- x
-                    bots.VelX.[i] <- 0.0f
-                    bots.AccX.[i] <- 0f
-                    bots.AccY.[i] <- upAcc
-                    bots.State.[i] <- BotState.UpTo 0f
+        match b.State with
+        | Idle -> handleIdle b
+        | LeftTo (d, vel, acc) ->
+            let newLocation = b.Position + vel * left * elapsedSecs + 0.5f * acc * left * elapsedSecs * elapsedSecs
+            let newVelocity, acc = 
+                let nextVelocity = vel + acc * elapsedSecs
+                if nextVelocity >= maxVelocity then
+                    maxVelocity, 0f
                 else
-                    let slowdownDistance = Math.Abs ((bots.VelX.[i] * bots.VelX.[i]) / (2f * bots.AccX.[i]))
-                    let currentDistance = Math.Abs (bots.LocX.[i] - x)
-                    if currentDistance <= slowdownDistance then bots.AccX.[i] <- rightAcc
-            | RightTo x -> 
-                if Math.Abs (bots.LocX.[i] - x) <= snapToDestinationDistance then
-                    bots.LocX.[i] <- x
-                    bots.VelX.[i] <- 0.0f
-                    bots.AccX.[i] <- 0.0f
-                    bots.AccY.[i] <- downAcc
-                    bots.State.[i] <- BotState.DownTo 200f
-                else
-                    let slowdownDistance = Math.Abs ((bots.VelX.[i] * bots.VelX.[i]) / (2f * bots.AccX.[i]))
-                    let currentDistance = Math.Abs (bots.LocX.[i] - x)
-                    if currentDistance <= slowdownDistance then bots.AccX.[i] <- leftAcc
-            | UpTo y ->
-                if Math.Abs (bots.LocY.[i] - y) <= snapToDestinationDistance then
-                    bots.LocY.[i] <- y
-                    bots.VelY.[i] <- 0.0f
-                    bots.AccY.[i] <- 0.0f
-                    bots.AccX.[i] <- rightAcc
-                    bots.State.[i] <- BotState.RightTo 200f
-                else
-                    let slowdownDistance = Math.Abs ((bots.VelY.[i] * bots.VelY.[i]) / (2f * bots.AccY.[i]))
-                    let currentDistance = Math.Abs (bots.LocY.[i] - y)
-                    if currentDistance <= slowdownDistance then bots.AccY.[i] <- downAcc
-            | DownTo y  ->
-                if Math.Abs (bots.LocY.[i] - y) <= snapToDestinationDistance then
-                    bots.LocY.[i] <- y
-                    bots.VelY.[i] <- 0.0f
-                    bots.AccY.[i] <- 0.0f
-                    bots.AccX.[i] <- leftAcc
-                    bots.State.[i] <- BotState.LeftTo 0f
-                else
-                    let slowdownDistance = Math.Abs ((bots.VelY.[i] * bots.VelY.[i]) / (2f * bots.AccY.[i]))
-                    let currentDistance = Math.Abs (bots.LocY.[i] - y)
-                    if currentDistance <= slowdownDistance then bots.AccY.[i] <- upAcc
+                    nextVelocity, acc
 
+            let distanceFromTarget = (d - newLocation).Length ()
+            let slowdownDistance = (newVelocity * newVelocity) / (2f * maxAcc)
 
-        ()
+            if distanceFromTarget < snapToDestinationDistance then
+                { b with Position = d; State = Idle}
 
-    let create (count: int) =
-        {
-            LocX = Array.zeroCreate count
-            LocY = Array.zeroCreate count
-            VelX = Array.zeroCreate count
-            VelY = Array.zeroCreate count
-            AccX = Array.zeroCreate count
-            AccY = Array.zeroCreate count
-            State = Array.create count BotState.Zero
-        }
+            elif distanceFromTarget <= slowdownDistance then
+                { b with Position = newLocation; State = LeftTo (d, newVelocity, -maxAcc)}
+                
+            else
+                { b with Position = newLocation; State = LeftTo (d, newVelocity, acc)}
+
+        | RightTo (d, vel, acc) ->
+            let newLocation = b.Position + vel * right * elapsedSecs + 0.5f * acc * right * elapsedSecs * elapsedSecs
+            let newVelocity, acc = 
+                let nextVelocity = vel + acc * elapsedSecs
+                if nextVelocity >= maxVelocity then
+                    maxVelocity, 0f
+                else
+                    nextVelocity, acc
+
+            let distanceFromTarget = (d - newLocation).Length ()
+            let slowdownDistance = (newVelocity * newVelocity) / (2f * maxAcc)
+
+            if distanceFromTarget < snapToDestinationDistance then
+                { b with Position = d; State = Idle}
+
+            elif distanceFromTarget <= slowdownDistance then
+                //let newAcc = -(newVelocity * newVelocity) / 2f / distanceFromTarget
+                { b with Position = newLocation; State = RightTo (d, newVelocity, -maxAcc)}
+                
+            else
+                { b with Position = newLocation; State = RightTo (d, newVelocity, acc)}
+
+        | UpTo (d, vel, acc) ->
+            let newLocation = b.Position + vel * up * elapsedSecs + 0.5f * acc * up * elapsedSecs * elapsedSecs
+            let newVelocity, acc = 
+                let nextVelocity = vel + acc * elapsedSecs
+                if nextVelocity >= maxVelocity then
+                    maxVelocity, 0f
+                else
+                    nextVelocity, acc
+
+            let distanceFromTarget = (d - newLocation).Length ()
+            let slowdownDistance = (newVelocity * newVelocity) / (2f * maxAcc)
+
+            if distanceFromTarget < snapToDestinationDistance then
+                { b with Position = d; State = Idle}
+
+            elif distanceFromTarget <= slowdownDistance then
+                { b with Position = newLocation; State = UpTo (d, newVelocity, -maxAcc)}
+                
+            else
+                { b with Position = newLocation; State = UpTo (d, newVelocity, acc)}
+
+        | DownTo (d, vel, acc) ->
+            let newLocation = b.Position + vel * down * elapsedSecs + 0.5f * acc * down * elapsedSecs * elapsedSecs
+            let newVelocity, acc = 
+                let nextVelocity = vel + acc * elapsedSecs
+                if nextVelocity >= maxVelocity then
+                    maxVelocity, 0f
+                else
+                    nextVelocity, acc
+
+            let distanceFromTarget = (d - newLocation).Length ()
+            let slowdownDistance = (newVelocity * newVelocity) / (2f * maxAcc)
+
+            if distanceFromTarget < snapToDestinationDistance then
+                { b with Position = d; State = Idle}
+
+            elif distanceFromTarget <= slowdownDistance then
+                { b with Position = newLocation; State = DownTo (d, newVelocity, -maxAcc)}
+                
+            else
+                { b with Position = newLocation; State = DownTo (d, newVelocity, acc)}
