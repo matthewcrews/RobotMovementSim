@@ -51,14 +51,6 @@ type BotState =
     with
         static member Zero = BotState.Idle
 
-
-//module BotState =
-
-//    let rightTo m = RightTo m
-//    let leftTo m = LeftTo m
-//    let upTo m = UpTo m
-//    let downTo m = DownTo m
-
 type Bot = {
     BotId : int
     Position : Vector2
