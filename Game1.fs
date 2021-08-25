@@ -48,7 +48,7 @@ type Game1 () as this =
         then this.Exit();
 
         // TODO: Add your update logic here
-        bots <- bots |> List.map (Bot.move gameTime.ElapsedGameTime)
+        bots <- bots |> List.map (Bot.move gameTime)
 
         base.Update(gameTime)
  

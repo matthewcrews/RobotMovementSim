@@ -46,13 +46,17 @@ type Bot = {
 
 module Bot =
 
+    let composeStatusMessage (gameTime: GameTime) (bot: Bot) (status: string) =
+        $"Bot={bot.BotId} | TimeStamp={gameTime.TotalGameTime} | Status={status}"
+
     let handleIdle (bot: Bot) =
         bot
 
-    let handleStopped (bot: Bot) =
+    let handleStopped (gameTime: GameTime) (bot: Bot) =
         match bot.Steps with
         | [] -> 
-            printfn "Bot %i has gone idle" bot.BotId
+            let msg = composeStatusMessage gameTime bot "idle"
+            printfn "%s" msg
             {bot with State = Idle}
         | next::remaining ->
             match next with
@@ -63,14 +67,14 @@ module Bot =
 
 
     let processDirection 
-        (timeSpan: TimeSpan)
+        (gameTime: GameTime)
         (bot: Bot)
         (direction: Vector2)
         (motion: Motion)
         stateBuilder : Bot =
 
         let (Motion (destination, velocity, acceleration)) = motion
-        let elapsedSecs = float32 timeSpan.TotalSeconds
+        let elapsedSecs = float32 gameTime.ElapsedGameTime.TotalSeconds
         let newLocation = bot.Position + velocity * direction * elapsedSecs + 0.5f * acceleration * direction * elapsedSecs * elapsedSecs
         let newVelocity, acc = 
             let nextVelocity = velocity + acceleration * elapsedSecs
@@ -92,12 +96,12 @@ module Bot =
             { bot with Position = newLocation; State = stateBuilder (Motion (destination, newVelocity, acc))}
 
 
-    let move (timeSpan: TimeSpan) (bot: Bot) : Bot =
+    let move (gameTime: GameTime) (bot: Bot) : Bot =
         
         match bot.State with
         | Idle -> handleIdle bot
-        | Stopped -> handleStopped bot
-        | LeftTo m -> processDirection timeSpan bot left m BotState.leftTo
-        | RightTo m -> processDirection timeSpan bot right m BotState.rightTo
-        | UpTo m -> processDirection timeSpan bot up m BotState.upTo
-        | DownTo m -> processDirection timeSpan bot down m BotState.downTo
+        | Stopped -> handleStopped gameTime bot
+        | LeftTo m -> processDirection gameTime bot left m BotState.leftTo
+        | RightTo m -> processDirection gameTime bot right m BotState.rightTo
+        | UpTo m -> processDirection gameTime bot up m BotState.upTo
+        | DownTo m -> processDirection gameTime bot down m BotState.downTo
