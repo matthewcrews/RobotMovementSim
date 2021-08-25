@@ -11,6 +11,7 @@ let right = Vector2(1f, 0f)
 let up = Vector2(0f, -1f)
 let down = Vector2(0f, 1f)
 
+//[<RequireQualifiedAccess>]
 type Step =
     | Right of float32
     | Down of float32
@@ -21,6 +22,7 @@ type Motion = Motion of destination: Vector2 * velocity: float32 * acceleration:
 
 type BotState =
     | Idle
+    | Stopped
     | LeftTo of Motion
     | RightTo of Motion
     | UpTo of Motion
@@ -36,6 +38,7 @@ module BotState =
     let downTo m = DownTo m
 
 type Bot = {
+    BotId : int
     Position : Vector2
     State : BotState
     Steps : Step list
@@ -43,15 +46,20 @@ type Bot = {
 
 module Bot =
 
-    let handleIdle (b: Bot) =
-        match b.Steps with
-        | [] -> b
+    let handleIdle (bot: Bot) =
+        bot
+
+    let handleStopped (bot: Bot) =
+        match bot.Steps with
+        | [] -> 
+            printfn "Bot %i has gone idle" bot.BotId
+            {bot with State = Idle}
         | next::remaining ->
             match next with
-            | Step.Right x -> {b with State = RightTo (Motion (x * right + b.Position, 0f, maxAcc)); Steps = remaining}
-            | Step.Down  x -> {b with State = DownTo  (Motion (x * down + b.Position,  0f, maxAcc)); Steps = remaining}
-            | Step.Left  x -> {b with State = LeftTo  (Motion (x * left + b.Position,  0f, maxAcc)); Steps = remaining}
-            | Step.Up    x -> {b with State = UpTo    (Motion (x * up + b.Position,    0f, maxAcc)); Steps = remaining}
+            | Step.Right x -> {bot with State = RightTo (Motion (x * right + bot.Position, 0f, maxAcc)); Steps = remaining}
+            | Step.Down  x -> {bot with State = DownTo  (Motion (x * down + bot.Position,  0f, maxAcc)); Steps = remaining}
+            | Step.Left  x -> {bot with State = LeftTo  (Motion (x * left + bot.Position,  0f, maxAcc)); Steps = remaining}
+            | Step.Up    x -> {bot with State = UpTo    (Motion (x * up + bot.Position,    0f, maxAcc)); Steps = remaining}
 
 
     let processDirection 
@@ -75,7 +83,7 @@ module Bot =
         let slowdownDistance = (newVelocity * newVelocity) / (2f * maxAcc)
 
         if distanceFromTarget < snapToDestinationDistance then
-            { bot with Position = destination; State = Idle}
+            { bot with Position = destination; State = Stopped}
 
         elif distanceFromTarget <= slowdownDistance then
             { bot with Position = newLocation; State = stateBuilder (Motion (destination, newVelocity, -maxAcc))}
@@ -88,6 +96,7 @@ module Bot =
         
         match bot.State with
         | Idle -> handleIdle bot
+        | Stopped -> handleStopped bot
         | LeftTo m -> processDirection timeSpan bot left m BotState.leftTo
         | RightTo m -> processDirection timeSpan bot right m BotState.rightTo
         | UpTo m -> processDirection timeSpan bot up m BotState.upTo

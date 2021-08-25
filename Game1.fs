@@ -30,13 +30,15 @@ type Game1 () as this =
         robotSprite <- this.Content.Load<Texture2D>("RobotTriangle")
         // Create a single bot and move it to the right
         let circleBot1 = {
+            BotId = 1
             Position = Vector2(0f, 0f)
-            State = Idle
+            State = Stopped
             Steps = [Right 100f; Down 100f; Left 100f; Up 100f]
         }
         let circleBot2 = {
+            BotId = 2
             Position = Vector2(50f, 50f)
-            State = Idle
+            State = Stopped
             Steps = [Right 100f; Down 100f; Left 100f; Up 100f]
         }
         bots <- [circleBot1; circleBot2]
