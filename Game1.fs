@@ -40,9 +40,16 @@ type Game1 () as this =
         let circleBot2 = {
             BotId = 2
             Position = Vector2(50f, 50f)
-            Rotation = MathHelper.PiOver4
+            Rotation = 0f
             State = Stopped
-            Steps = [Right 100f; Down 100f; Left 100f; Up 100f]
+            Steps = 
+                [
+                    Step (Direction.Right, 100f)
+                    Step (Direction.Down, 100f)
+                    Step (Direction.Right, 100f)
+                    Step (Direction.Up, 100f)
+                    Step (Direction.Down, 100f)
+                ]
         }
         bots <- [circleBot2]
  
