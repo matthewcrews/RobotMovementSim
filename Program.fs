@@ -7,6 +7,6 @@ module Program =
 
     [<EntryPoint>]
     let main argv =
-        use game = new Game1()
-        game.Run()
+        use simulation = new Simulation()
+        simulation.Run()
         0 // return an integer exit code

@@ -12,7 +12,7 @@ open RobotMovementSim
 open RobotMovementSim.State
 
 
-type Game1 () as this =
+type Simulation () as this =
     inherit Game()
  
     let graphics = new GraphicsDeviceManager(this, PreferredBackBufferWidth = 1920, PreferredBackBufferHeight = 1080)
