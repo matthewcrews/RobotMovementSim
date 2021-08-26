@@ -19,6 +19,9 @@ module MonoGameExtensions =
 
 
 type Camera(viewport: Viewport) =       
+    let mutable scrollWheelValue = 0
+    let maxZoom = 4f
+    let minZoom = 0.5f
     member val WorldToScreen = Matrix.Identity with get, set
     member val ScreenToWorld = Matrix.Identity with get, set
     member val Zoom = 1.0f with get, set
@@ -47,6 +50,20 @@ type Camera(viewport: Viewport) =
         movementDirection
 
 
+    member this.AdjustZoom () =
+        let mouseState = Mouse.GetState ()
+        let newScrollWheelValue = mouseState.ScrollWheelValue
+
+        if newScrollWheelValue < scrollWheelValue then
+            scrollWheelValue <- newScrollWheelValue
+            this.Zoom <- MathHelper.Clamp (this.Zoom * 0.8f, minZoom, maxZoom)
+
+        if newScrollWheelValue > scrollWheelValue then
+            scrollWheelValue <- newScrollWheelValue
+            this.Zoom <- MathHelper.Clamp (this.Zoom * 1.2f, minZoom, maxZoom)
+        
+            
+
     member this.MoveCamera (gameTime: GameTime) =
         let speed = 800f
         let seconds = gameTime.GetElapsedSeconds ()
@@ -56,6 +73,7 @@ type Camera(viewport: Viewport) =
 
     member this.Update (gameTime: GameTime) =
         this.MoveCamera gameTime
+        this.AdjustZoom ()
         this.WorldToScreen <-
             Matrix.CreateTranslation(Vector3(-this.Position, 0.0f)) *
             Matrix.CreateRotationZ(this.Rotation ) *
