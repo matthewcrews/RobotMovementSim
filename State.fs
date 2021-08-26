@@ -1,18 +1,18 @@
-module State
+module RobotMovementSim.State
 
 open System
 open Microsoft.Xna.Framework
 
 let nil<'a> = Unchecked.defaultof<'a>
-let maxAcc = 100f
+let maxAcc = 200f
 let snapToDestinationDistance = 0.5f
 let snapToRotationDifference = 0.05f
-let maxVelocity = 100.0f
+let maxVelocity = 200.0f
 let left = Vector2(-1f, 0f)
 let right = Vector2(1f, 0f)
 let up = Vector2(0f, -1f)
 let down = Vector2(0f, 1f)
-let rotationRate = 1.0f
+let rotationRate = 2.0f
 
 [<RequireQualifiedAccess>]
 type Direction =

@@ -16,6 +16,7 @@
   <ItemGroup>
     <EmbeddedResource Include="Icon.ico" />
     <EmbeddedResource Include="Icon.bmp" />
+    <Compile Include="Camera.fs" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="State.fs" />
