@@ -133,6 +133,28 @@
 /processor:TiledMapTilesetProcessor
 /build:[Base]BaseChip_pipo.tsx
 
+#begin cave tileset.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:cave tileset.png
+
+#begin cave tileset.tsx
+/importer:TiledMapTilesetImporter
+/processor:TiledMapTilesetProcessor
+/build:cave tileset.tsx
+
+#begin CaveMap.tmx
+/importer:TiledMapImporter
+/processor:TiledMapProcessor
+/build:CaveMap.tmx
+
 #begin LightShadow_pipo.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -161,9 +183,4 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:RobotTriangle.png
-
-#begin samplemap.tmx
-/importer:TiledMapImporter
-/processor:TiledMapProcessor
-/build:samplemap.tmx
 

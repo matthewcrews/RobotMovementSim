@@ -94,21 +94,21 @@ type Game1 () as this =
         robotSprite <- this.Content.Load<Texture2D>("RobotTriangle")
         let circleBot2 = {
             BotId = 2
-            Position = Vector2(50f, 50f)
+            Position = Vector2(0f, 0f)
             Rotation = 0f
             State = Stopped
             Steps = 
                 [
-                    Step (Direction.Right, 100f)
-                    Step (Direction.Down, 100f)
-                    Step (Direction.Right, 100f)
-                    Step (Direction.Up, 100f)
-                    Step (Direction.Down, 100f)
+                    //Step (Direction.Right, 100f)
+                    //Step (Direction.Down, 100f)
+                    //Step (Direction.Right, 100f)
+                    //Step (Direction.Up, 100f)
+                    //Step (Direction.Down, 100f)
                 ]
         }
         bots <- [circleBot2]
 
-        tiledMap <- this.Content.Load<TiledMap>("samplemap")
+        tiledMap <- this.Content.Load<TiledMap>("CaveMap")
         tiledMapRenderer <- new TiledMapRenderer(this.GraphicsDevice, tiledMap)
         spriteBatch <- new SpriteBatch(this.GraphicsDevice)
 
@@ -127,7 +127,7 @@ type Game1 () as this =
 
 
     override this.Draw (gameTime) =
-        this.GraphicsDevice.Clear Color.CornflowerBlue
+        this.GraphicsDevice.Clear Color.Gray
 
         // TODO: Add your drawing code here
         spriteBatch.Begin(transformMatrix = Nullable.op_Implicit camera.WorldToScreen)
