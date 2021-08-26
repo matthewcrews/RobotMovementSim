@@ -59,7 +59,7 @@ type Bot = {
     Steps : Step list
 } with
     member _.Origin =
-        Vector2 (32f / 2f, 32f / 2f)
+        Vector2 (16f / 2f, 16f / 2f)
 
 module Bot =
 

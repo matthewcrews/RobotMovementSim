@@ -39,10 +39,10 @@ type Simulation () as this =
 
     override this.LoadContent() =
         // TODO: use this.Content to load your game content here
-        robotSprite <- this.Content.Load<Texture2D>("RobotTriangle")
+        robotSprite <- this.Content.Load<Texture2D>("BabyBoy")
         let circleBot2 = {
             BotId = 2
-            Position = Vector2(2f * 32f, 3f *32f)
+            Position = Vector2(2f * 16f, 3f * 16f)
             Rotation = 0f
             State = Stopped
             Steps = 
@@ -56,7 +56,7 @@ type Simulation () as this =
         }
         bots <- [circleBot2]
 
-        tiledMap <- this.Content.Load<TiledMap>("CaveMap")
+        tiledMap <- this.Content.Load<TiledMap>("labmap")
         tiledMapRenderer <- new TiledMapRenderer(this.GraphicsDevice, tiledMap)
         spriteBatch <- new SpriteBatch(this.GraphicsDevice)
 
