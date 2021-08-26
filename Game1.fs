@@ -1,5 +1,6 @@
 namespace RobotMovementSim
 
+open System
 open Microsoft.Xna.Framework
 open Microsoft.Xna.Framework.Graphics
 open Microsoft.Xna.Framework.Input
@@ -7,60 +8,83 @@ open MonoGame.Extended
 open MonoGame.Extended.Tiled
 open MonoGame.Extended.Tiled.Renderers
 open MonoGame.Extended.ViewportAdapters
-
 open State
+
+
+[<AutoOpen>]
+module MonoGameExtensions =
+    type Viewport with
+        member this.Center =
+            Vector2(float32 this.Width * 0.5f, float32 this.Height * 0.5f)
+
+
+type Camera(viewport: Viewport) =       
+    member val WorldToScreen = Matrix.Identity with get, set
+    member val ScreenToWorld = Matrix.Identity with get, set
+    member val Zoom = 1.0f with get, set
+    member val Position = Vector2.Zero with get, set
+    member val Rotation = 0.0f with get, set
+
+    member _.GetMovementDirection () =
+        let mutable movementDirection = Vector2.Zero
+        let state = Keyboard.GetState ()
+        
+        if state.IsKeyDown Keys.Down then
+            movementDirection <- movementDirection + Vector2.UnitY
+        
+        if state.IsKeyDown Keys.Up then
+            movementDirection <- movementDirection - Vector2.UnitY
+
+        if state.IsKeyDown Keys.Left then
+            movementDirection <- movementDirection - Vector2.UnitX
+
+        if state.IsKeyDown Keys.Right then
+            movementDirection <- movementDirection + Vector2.UnitX
+
+        if movementDirection <> Vector2.Zero then
+            movementDirection.Normalize ()
+
+        movementDirection
+
+
+    member this.MoveCamera (gameTime: GameTime) =
+        let speed = 800f
+        let seconds = gameTime.GetElapsedSeconds ()
+        let movementDirection = this.GetMovementDirection()
+        this.Position <- this.Position + speed * movementDirection * seconds
+
+
+    member this.Update (gameTime: GameTime) =
+        this.MoveCamera gameTime
+        this.WorldToScreen <-
+            Matrix.CreateTranslation(Vector3(-this.Position, 0.0f)) *
+            Matrix.CreateRotationZ(this.Rotation ) *
+            Matrix.CreateScale(Vector3(this.Zoom, this.Zoom, 1.f )) *
+            Matrix.CreateTranslation(Vector3(viewport.Center, 0.f))
+        this.ScreenToWorld <- Matrix.Invert(this.WorldToScreen)
 
 
 type Game1 () as this =
     inherit Game()
  
-    let graphics = new GraphicsDeviceManager(this)
+    let graphics = new GraphicsDeviceManager(this, PreferredBackBufferWidth = 1920, PreferredBackBufferHeight = 1080)
     let mutable spriteBatch = Unchecked.defaultof<_>
     let mutable robotSprite = Unchecked.defaultof<_>
     let mutable bots = Unchecked.defaultof<_>
     let mutable tiledMap = nil<_>
     let mutable tiledMapRenderer = nil<_>
-    //let mutable camera = nil<_>
-    //let mutable cameraPosition = nil<_>
+    let mutable camera = nil<_>
 
     do
         this.Content.RootDirectory <- "Content"
         this.IsMouseVisible <- true
 
-    //member _.GetMovementDirection () =
-    //    let mutable movementDirection = Vector2.Zero
-    //    let state = Keyboard.GetState ()
-        
-    //    if state.IsKeyDown Keys.Down then
-    //        movementDirection <- movementDirection - Vector2.UnitY
-        
-    //    if state.IsKeyDown Keys.Up then
-    //        movementDirection <- movementDirection + Vector2.UnitY
-
-    //    if state.IsKeyDown Keys.Left then
-    //        movementDirection <- movementDirection + Vector2.UnitX
-
-    //    if state.IsKeyDown Keys.Right then
-    //        movementDirection <- movementDirection - Vector2.UnitX
-
-    //    if movementDirection <> Vector2.Zero then
-    //        movementDirection.Normalize ()
-
-    //    movementDirection
-
-
-    //member this.MoveCamera (gameTime: GameTime) =
-    //    let speed = 200f
-    //    let seconds = gameTime.GetElapsedSeconds ()
-    //    let movementDirection = this.GetMovementDirection()
-    //    cameraPosition <- cameraPosition + speed * movementDirection * seconds
-
 
     override this.Initialize() =
         // TODO: Add your initialization logic here
         this.Window.AllowUserResizing <- true
-        //let viewportAdapter = new BoxingViewportAdapter(this.Window, this.GraphicsDevice, 800, 600)
-        //camera <- OrthographicCamera (viewportAdapter)
+        camera <- Camera(this.GraphicsDevice.Viewport)
+
         base.Initialize()
 
 
@@ -96,10 +120,8 @@ type Game1 () as this =
 
         // TODO: Add your update logic here
         tiledMapRenderer.Update (gameTime)
-        //this.MoveCamera gameTime
-        //camera.LookAt cameraPosition
         bots <- bots |> List.map (Bot.move gameTime)
-
+        camera.Update gameTime
         base.Update(gameTime)
  
 
@@ -108,13 +130,9 @@ type Game1 () as this =
         this.GraphicsDevice.Clear Color.CornflowerBlue
 
         // TODO: Add your drawing code here
-        spriteBatch.Begin()
-        
-        tiledMapRenderer.Draw()
-        //tiledMapRenderer.Draw(camera.GetInverseViewMatrix ())
-
+        spriteBatch.Begin(transformMatrix = Nullable.op_Implicit camera.WorldToScreen)
+        tiledMapRenderer.Draw(camera.WorldToScreen)
         for bot in bots do
-            //let sourceRect = Rectangle (0, 0, robotSprite.Width, robotSprite.Height)
             spriteBatch.Draw (robotSprite, bot.Position, nil<_>, Color.White, bot.Rotation, bot.Origin, Vector2.One, SpriteEffects.None, 1f)
 
         spriteBatch.End()
