@@ -3,8 +3,10 @@ namespace RobotMovementSim
 open Microsoft.Xna.Framework
 open Microsoft.Xna.Framework.Graphics
 open Microsoft.Xna.Framework.Input
+open MonoGame.Extended
 open MonoGame.Extended.Tiled
 open MonoGame.Extended.Tiled.Renderers
+open MonoGame.Extended.ViewportAdapters
 
 open State
 
@@ -18,15 +20,47 @@ type Game1 () as this =
     let mutable bots = Unchecked.defaultof<_>
     let mutable tiledMap = nil<_>
     let mutable tiledMapRenderer = nil<_>
+    //let mutable camera = nil<_>
+    //let mutable cameraPosition = nil<_>
 
     do
         this.Content.RootDirectory <- "Content"
         this.IsMouseVisible <- true
 
+    //member _.GetMovementDirection () =
+    //    let mutable movementDirection = Vector2.Zero
+    //    let state = Keyboard.GetState ()
+        
+    //    if state.IsKeyDown Keys.Down then
+    //        movementDirection <- movementDirection - Vector2.UnitY
+        
+    //    if state.IsKeyDown Keys.Up then
+    //        movementDirection <- movementDirection + Vector2.UnitY
+
+    //    if state.IsKeyDown Keys.Left then
+    //        movementDirection <- movementDirection + Vector2.UnitX
+
+    //    if state.IsKeyDown Keys.Right then
+    //        movementDirection <- movementDirection - Vector2.UnitX
+
+    //    if movementDirection <> Vector2.Zero then
+    //        movementDirection.Normalize ()
+
+    //    movementDirection
+
+
+    //member this.MoveCamera (gameTime: GameTime) =
+    //    let speed = 200f
+    //    let seconds = gameTime.GetElapsedSeconds ()
+    //    let movementDirection = this.GetMovementDirection()
+    //    cameraPosition <- cameraPosition + speed * movementDirection * seconds
+
 
     override this.Initialize() =
         // TODO: Add your initialization logic here
-        
+        this.Window.AllowUserResizing <- true
+        //let viewportAdapter = new BoxingViewportAdapter(this.Window, this.GraphicsDevice, 800, 600)
+        //camera <- OrthographicCamera (viewportAdapter)
         base.Initialize()
 
 
@@ -62,6 +96,8 @@ type Game1 () as this =
 
         // TODO: Add your update logic here
         tiledMapRenderer.Update (gameTime)
+        //this.MoveCamera gameTime
+        //camera.LookAt cameraPosition
         bots <- bots |> List.map (Bot.move gameTime)
 
         base.Update(gameTime)
@@ -75,6 +111,7 @@ type Game1 () as this =
         spriteBatch.Begin()
         
         tiledMapRenderer.Draw()
+        //tiledMapRenderer.Draw(camera.GetInverseViewMatrix ())
 
         for bot in bots do
             //let sourceRect = Rectangle (0, 0, robotSprite.Width, robotSprite.Height)
