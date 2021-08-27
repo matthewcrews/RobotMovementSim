@@ -26,6 +26,33 @@
 /processorParam:TextureFormat=Color
 /build:BabyBoy.png
 
+#begin direction_map.tmx
+/importer:TiledMapImporter
+/processor:TiledMapProcessor
+/build:direction_map.tmx
+
+#begin direction_tileset.tsx
+/importer:TiledMapTilesetImporter
+/processor:TiledMapTilesetProcessor
+/build:direction_tileset.tsx
+
+#begin DirectionTiles.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:DirectionTiles.png
+
+#begin DirectionTiles.tsx
+/importer:TiledMapTilesetImporter
+/processor:TiledMapTilesetProcessor
+/build:DirectionTiles.tsx
+
 #begin lab tileset.png
 /importer:TextureImporter
 /processor:TextureProcessor

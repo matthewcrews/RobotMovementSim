@@ -44,7 +44,7 @@ type Simulation () as this =
         robotSprite <- this.Content.Load<Texture2D>("BabyBoy")
         let circleBot2 = {
             BotId = 2
-            Position = Vector2(2f * 16f, 3f * 16f)
+            Position = Vector2(8f, 8f)
             Rotation = 0f
             State = Stopped
             Steps = 
@@ -58,7 +58,7 @@ type Simulation () as this =
         }
         bots <- [circleBot2]
 
-        tiledMap <- this.Content.Load<TiledMap>("labmap")
+        tiledMap <- this.Content.Load<TiledMap>("direction_map")
         tiledMapRenderer <- new TiledMapRenderer(this.GraphicsDevice, tiledMap)
         spriteBatch <- new SpriteBatch(this.GraphicsDevice)
 
@@ -82,7 +82,7 @@ type Simulation () as this =
         tiledMapRenderer.Draw(camera.WorldToScreen)
 
         // TODO: Add your drawing code here
-        spriteBatch.Begin(transformMatrix = Nullable.op_Implicit camera.WorldToScreen)
+        spriteBatch.Begin(transformMatrix = Nullable.op_Implicit camera.WorldToScreen, samplerState = SamplerState.PointClamp)
         
         for bot in bots do
             let color =
