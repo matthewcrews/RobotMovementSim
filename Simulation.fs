@@ -15,7 +15,7 @@ open RobotMovementSim.State
 type Simulation () as this =
     inherit Game()
  
-    let graphics = new GraphicsDeviceManager(this, PreferredBackBufferWidth = 1920, PreferredBackBufferHeight = 1080)
+    let graphics = new GraphicsDeviceManager(this)
     let mutable spriteBatch = Unchecked.defaultof<_>
     let mutable robotSprite = Unchecked.defaultof<_>
     let mutable bots = Unchecked.defaultof<_>
@@ -26,13 +26,15 @@ type Simulation () as this =
     do
         this.Content.RootDirectory <- "Content"
         this.IsMouseVisible <- true
+        this.Window.AllowUserResizing <- true
 
 
     override this.Initialize() =
         // TODO: Add your initialization logic here
-        this.Window.AllowUserResizing <- true
         camera <- Camera(this.GraphicsDevice.Viewport)
-
+        graphics.PreferredBackBufferHeight <- 1080
+        graphics.PreferredBackBufferWidth <- 1920
+        graphics.ApplyChanges ()
         base.Initialize()
 
 
