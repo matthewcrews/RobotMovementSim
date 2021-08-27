@@ -1,18 +1,18 @@
-module State
+module RobotMovementSim.State
 
 open System
 open Microsoft.Xna.Framework
 
 let nil<'a> = Unchecked.defaultof<'a>
-let maxAcc = 100f
+let maxAcc = 200f
 let snapToDestinationDistance = 0.5f
 let snapToRotationDifference = 0.05f
-let maxVelocity = 100.0f
+let maxVelocity = 200.0f
 let left = Vector2(-1f, 0f)
 let right = Vector2(1f, 0f)
 let up = Vector2(0f, -1f)
 let down = Vector2(0f, 1f)
-let rotationRate = 1.0f
+let rotationRate = 2.0f
 
 [<RequireQualifiedAccess>]
 type Direction =
@@ -59,7 +59,7 @@ type Bot = {
     Steps : Step list
 } with
     member _.Origin =
-        Vector2 (32f / 2f, 32f / 2f)
+        Vector2 (16f / 2f, 16f / 2f)
 
 module Bot =
 
@@ -140,3 +140,5 @@ module Bot =
         | Idle -> handleIdle bot
         | Stopped -> handleStopped gameTime bot
         | Move (direction, motion) -> processMove gameTime bot direction motion 
+
+
