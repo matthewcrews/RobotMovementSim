@@ -31,10 +31,32 @@
 /processor:TiledMapProcessor
 /build:direction_map.tmx
 
+#begin direction_map.tmx
+/importer:TiledMapImporter
+/processor:TiledMapProcessor
+/build:direction_map.tmx
+
 #begin direction_tileset.tsx
 /importer:TiledMapTilesetImporter
 /processor:TiledMapTilesetProcessor
 /build:direction_tileset.tsx
+
+#begin DirectionDotTiles.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:DirectionDotTiles.png
+
+#begin DirectionDotTiles.tsx
+/importer:TiledMapTilesetImporter
+/processor:TiledMapTilesetProcessor
+/build:DirectionDotTiles.tsx
 
 #begin DirectionTiles.png
 /importer:TextureImporter
@@ -47,6 +69,11 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:DirectionTiles.png
+
+#begin DirectionTiles.tsx
+/importer:TiledMapTilesetImporter
+/processor:TiledMapTilesetProcessor
+/build:DirectionTiles.tsx
 
 #begin DirectionTiles.tsx
 /importer:TiledMapTilesetImporter
